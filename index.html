@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>نظام حضور وغياب طالبات جوهرة شناص</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --brand:#6f42c1; --brand-2:#8b5cf6; --gold:#c9a227;
+    --ok:#0ea35a; --warn:#ff9800; --danger:#d32f2f;
+    --ink:#222; --muted:#6b7280; --bg:#faf7ff; --card:#ffffff; --border:#e5e7eb; --row:#fbf9ff;
+  }
+  .dark{
+    --bg:#0f0a1a; --card:#17112a; --ink:#f3f4f6; --muted:#a6a6b5; --border:#2a2441; --row:#120d22;
+    --brand:#9d7cf8; --brand-2:#b69cff; --gold:#e3c85a;
+  }
+  html,body{height:100%}
+  body{
+    font-family:"Cairo","Tajawal",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    background:
+      radial-gradient(40% 50% at 100% 0%, rgba(107,70,193,0.10), transparent 60%),
+      radial-gradient(60% 70% at 0% 100%, rgba(201,162,39,0.10), transparent 60%),
+      linear-gradient(180deg, var(--bg), #fff 60%);
+    color:var(--ink); text-align:center; padding:20px; margin:0; min-height:100vh; position:relative;
+    transition:background .3s ease,color .3s ease;
+  }
+  body::after{
+    content:""; position:fixed; inset:0; pointer-events:none; opacity:.12;
+    background-image:url('data:image/svg+xml;utf8,\
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">\
+<g fill="none" stroke="%23967adf" stroke-width="1">\
+<path d="M0 60h120M60 0v120"/><circle cx="60" cy="60" r="18" stroke="%23c9a227" stroke-width="0.8"/></g></svg>');
+    background-size:180px 180px;
+  }
+  header{
+    background:linear-gradient(135deg, var(--brand), var(--brand-2));
+    color:#fff;padding:16px 18px;border-radius:16px;
+    box-shadow:0 8px 24px rgba(111,66,193,.25);
+    margin:40px auto 20px; width:96%; max-width:1200px; position:relative;
+  }
+  .header-inner{display:flex; align-items:center; justify-content:space-between; gap:12px;}
+  .header-logo{height:80px;width:auto; border-radius:10px; background:#fff; padding:6px; border:1px solid rgba(255,255,255,.35)}
+  .header-title{display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1}
+  .header-title h1{margin:0;font-size:24px;letter-spacing:.2px}
+  .header-title .sub{font-size:14px; opacity:.95}
+  #dateTime{font-size:13px;margin-top:6px;color:#f5f3ff;opacity:.95}
+  .top-actions{position:absolute;left:10px;top:10px;display:flex;gap:8px;align-items:center}
+  .chip{background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.35);padding:6px 10px;border-radius:999px;font-size:13px}
+  .btn-icon{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:10px;padding:8px 10px;cursor:pointer}
+  .btn-icon:hover{transform:scale(1.05)}
+
+  .container{background:var(--card);border-radius:18px;padding:20px;box-shadow:0 8px 28px rgba(0,0,0,.08);
+    width:96%;max-width:1200px;margin:0 auto;border:1px solid var(--border)}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:center}
+  select,input,textarea{padding:10px;margin:6px;font-size:16px;border:1px solid var(--border);border-radius:10px;transition:.25s;background:#fff;color:#111}
+  .dark select,.dark input,.dark textarea{background:#130d22;color:#f2f2f8;border-color:#2b2342}
+  select:focus,input:focus,textarea:focus{border-color:var(--brand);outline:none;box-shadow:0 0 0 3px rgba(139,92,246,.2)}
+
+  button{padding:10px 14px;margin:6px;border:none;border-radius:12px;cursor:pointer;font-size:15px;color:#fff;transition:.2s;box-shadow:0 4px 12px rgba(0,0,0,.12)}
+  button:hover{transform:translateY(-1px)}
+  .btn-primary{background:var(--brand)} .btn-ok{background:var(--ok)} .btn-warn{background:var(--warn);color:#000}
+  .btn-danger{background:var(--danger)} .btn-violet{background:var(--brand-2)} .btn-blue{background:#3b82f6}
+  .btn-purple{background:#915bff} .btn-gray{background:#4b5563} .btn-gold{background:var(--gold); color:#1f2937}
+
+  table{width:100%;border-collapse:separate;border-spacing:0;margin-top:10px;border:1px solid var(--border);overflow:hidden;border-radius:14px}
+  th,td{border-bottom:1px solid var(--border);padding:10px 8px;text-align:center;font-size:16px;vertical-align:middle;background:var(--card);color:var(--ink)}
+  th{background:linear-gradient(180deg, rgba(139,92,246,.18), rgba(139,92,246,.05)); color:#1f1b2e; font-weight:800}
+  tbody tr:nth-child(even) td{background:var(--row)}
+  td .name-input{width:95%;padding:6px;border:1px solid var(--border);border-radius:8px}
+
+  .logo-row{display:flex;align-items:center;justify-content:space-between;margin:10px 0}
+  .logo-box{display:flex;align-items:center;gap:10px}
+  .logo-box img{height:80px;width:auto;border-radius:10px;object-fit:contain;background:#fff;border:1px solid var(--border);padding:4px}
+  .title-center{font-weight:900;font-size:20px;color:#2d2250}
+  .stats{margin-top:8px;font-weight:800;color:#2d2250}
+  .small{font-size:13px;color:var(--muted)}
+  .teacher-wrap{display:flex;align-items:center;gap:8px;justify-content:center;flex-wrap:wrap}
+  .teacher-wrap input{max-width:260px}
+
+  .login-card{background:var(--card);border-radius:16px;padding:18px 16px;box-shadow:0 8px 28px rgba(0,0,0,.08);
+    width:290px; text-align:center;border:1px solid var(--border)}
+  .cards{display:flex;gap:14px;flex-wrap:wrap;align-items:stretch;justify-content:center;margin:10px auto}
+  .role-title{font-weight:900;margin:4px 0 6px}
+  .badge{display:inline-block;background:rgba(139,92,246,.12);color:#3a2b68;border:1px solid rgba(139,92,246,.35);border-radius:999px;padding:4px 10px;font-size:13px}
+
+  #snackbar{visibility:hidden;min-width:260px;background:#2e7d32;color:#fff;text-align:center;border-radius:10px;padding:12px;position:fixed;left:50%;transform:translateX(-50%);bottom:18px;z-index:999}
+  #snackbar.show{visibility:visible;animation:fadein .25s, fadeout .25s 2.75s}
+  @keyframes fadein{from{bottom:0;opacity:0}to{bottom:18px;opacity:1}}
+  @keyframes fadeout{from{bottom:18px;opacity:1}to{bottom:0;opacity:0}}
+
+  .bell{margin-right:6px;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:999px;background:linear-gradient(180deg, #f6e7a8, var(--gold));border:1px solid #b79217;color:#4b3b09;font-size:14px}
+  .bell:empty{display:none}
+
+  footer{margin-top:16px;font-size:13px;color:var(--muted)}
+  .footer-row{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap}
+  .badge-flat{background:rgba(0,0,0,.05);color:#333;border:1px solid var(--border);padding:4px 10px;border-radius:999px}
+  .dark .badge-flat{background:rgba(255,255,255,.08);color:#ddd;border-color:#352b59}
+
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;z-index:1000}
+  .modal.show{display:flex}
+  .modal-card{background:var(--card);max-width:640px;width:95%;border-radius:16px;padding:18px;border:1px solid var(--border);box-shadow:0 10px 30px rgba(0,0,0,.25);text-align:right}
+  .modal-card h3{margin:0 0 10px 0;font-weight:900;color:#2d2250}
+  .modal-card .actions{display:flex;gap:8px;justify-content:flex-start;margin-top:12px}
+  .modal-card input[type="file"]{background:#fafafa;border-radius:10px}
+  .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .modal-logo{height:28px}
+
+  @media print{
+    body{background:#fff}
+    .top-actions, header,.controls,footer,textarea,#snackbar,.send-wrapper,.login,.logout-btn,.modal,#parentView{display:none}
+    .container{box-shadow:none;border:none;width:100%;margin:0;padding:0}
+    .print-header{display:block !important;margin-bottom:10px}
+    .print-logos{display:flex;justify-content:space-between;align-items:center;margin:6px 16px}
+    .print-logos img{height:80px;width:auto}
+    .print-title{font-weight:900;font-size:18px;margin:0;text-align:center;color:#111}
+    .print-sub{font-size:14px;text-align:center;margin:2px 0 6px 0;color:#111}
+    table{border:1px solid #000;margin:10px 12px 0 12px}
+    th,td{border-bottom:1px solid #000;color:#000}
+    .print-footer{margin:12px;text-align:center;font-size:12px;color:#000}
+  }
+  .print-header{display:none}
+  .hidden{display:none !important}
+  .view{margin-top:8px}
+  .logout-btn{position:fixed;left:12px;top:12px}
+  .attach-link{cursor:pointer;text-decoration:underline}
+</style>
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <img id="moeLogoHeader" class="header-logo" src="" alt="شعار الوزارة">
+      <div class="header-title">
+        <h1>📋 نظام حضور وغياب طالبات جوهرة شناص</h1>
+        <div class="sub">مدرسة جوهرة شناص للتعليم الأساسي</div>
+        <div id="dateTime"></div>
+      </div>
+      <img id="schoolLogoHeader" class="header-logo" src="" alt="شعار المدرسة">
+    </div>
+    <div class="top-actions">
+      <button class="btn-icon" title="الوضع الليلي" onclick="toggleDarkMode()">🌙</button>
+      <button class="btn-icon" title="حول النظام" onclick="openInfo()">ℹ️</button>
+      <span class="chip">إصدار 3.0</span>
+    </div>
+  </header>
+
+  <div class="print-header" id="printHeader">
+    <div class="print-logos">
+      <img id="moeLogoPrint" src="" alt="شعار الوزارة">
+      <div style="text-align:center">
+        <div class="print-title" id="govTitle">وزارة التربية والتعليم</div>
+        <div class="print-title">مدرسة جوهرة شناص للتعليم الأساسي</div>
+        <div class="print-sub">سلطنة عُمان</div>
+      </div>
+      <img id="schoolLogoPrint" src="" alt="شعار المدرسة">
+    </div>
+    <div id="printInfo" class="small" style="text-align:center"></div>
+    <div class="small" id="teacherPrint" style="text-align:center"></div>
+  </div>
+
+  <div class="container">
+    <div class="logo-row">
+      <div class="logo-box"><img id="moeLogo" src="" alt="شعار الوزارة"></div>
+      <div class="title-center">مدرسة جوهرة شناص للتعليم الأساسي</div>
+      <div class="logo-box"><img id="schoolLogo" src="" alt="شعار المدرسة"></div>
+    </div>
+
+    <button class="btn-danger logout-btn hidden" id="logoutBtn" onclick="logout()">تسجيل الخروج</button>
+
+    <section class="login view" id="loginView">
+      <h2 style="margin-top:6px">تسجيل الدخول</h2>
+      <div class="small">الدخول بكلمة مرور فقط (بدون إيميل)</div>
+      <div class="cards">
+        <div class="login-card">
+          <div class="role-title">الإدارة</div>
+          <div class="badge">صلاحية كاملة</div>
+          <input id="adminPass" type="password" placeholder="كلمة مرور الإدارة">
+          <button class="btn-primary" onclick="login('admin')">دخول الإدارة</button>
+        </div>
+        <div class="login-card">
+          <div class="role-title">المعلمة</div>
+          <div class="badge">صلاحيات كل الصفوف</div>
+          <input id="teacherPass" type="password" placeholder="كلمة مرور المعلمة">
+          <button class="btn-ok" onclick="login('teacher')">دخول المعلمة</button>
+        </div>
+        <div class="login-card">
+          <div class="role-title">وليّ الأمر</div>
+          <div class="badge">عرض + سبب غياب + صورة</div>
+          <input id="parentPass" type="password" placeholder="كلمة مرور أولياء الأمور">
+          <button class="btn-violet" onclick="login('parent')">دخول وليّ الأمر</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="commonControls" class="view hidden">
+      <div class="row">
+        <div>
+          <label>الصف:</label>
+          <select id="grade" onchange="updateClasses()">
+            <option value="">-- اختر الصف --</option>
+            <option value="5">الخامس</option>
+            <option value="6">السادس</option>
+            <option value="7">السابع</option>
+            <option value="8">الثامن</option>
+          </select>
+        </div>
+        <div>
+          <label>الشعبة:</label>
+          <select id="class" onchange="loadStudents()"></select>
+        </div>
+      </div>
+
+      <div class="controls row" id="teacherLine">
+        <div class="teacher-wrap">
+          <label>اسم المعلمة:</label>
+          <input id="teacherName" type="text" placeholder="اكتبي اسمك مرة واحدة..." oninput="saveTeacher()" />
+          <button class="btn-blue" onclick="markAllPresent()">✅ تحديد الكل كحاضرات</button>
+        </div>
+
+        <input type="text" id="studentName" placeholder="أدخل اسم الطالبة">
+        <button class="btn-primary" onclick="addStudent()">➕ إضافة</button>
+
+        <button class="btn-ok" onclick="exportToExcel()">📊 Excel (تصدير)</button>
+        <button class="btn-violet" onclick="printList()">🖨️ طباعة</button>
+      </div>
+    </section>
+
+    <section id="tableSection" class="view hidden">
+      <h2 id="classTitle" style="margin:8px 0 0 0"></h2>
+      <table id="studentsTable">
+        <thead>
+        <tr>
+          <th>رقم</th>
+          <th>اسم الطالبة</th>
+          <th>الحالة</th>
+          <th>المرفقات</th>
+          <th>التوقيع</th>
+          <th id="thOptions">الخيارات</th>
+        </tr>
+        </thead>
+        <tbody id="studentsList"></tbody>
+      </table>
+      <div class="stats" id="statsBox">الحضور: 0% | الغياب: 0% | التأخر: 0%</div>
+
+      <div class="send-wrapper" style="margin-top:16px">
+        <button class="btn-gold" onclick="sendPDF()">📥 إنشاء PDF</button>
+      </div>
+    </section>
+
+    <section id="parentView" class="view hidden">
+      <h2>استعلام وليّ الأمر</h2>
+      <div class="row">
+        <div>
+          <label>الصف:</label>
+          <select id="pGrade" onchange="buildParentClasses(); parentRefresh()">
+            <option value="">-- اختر الصف --</option>
+            <option value="5">الخامس</option>
+            <option value="6">السادس</option>
+            <option value="7">السابع</option>
+            <option value="8">الثامن</option>
+          </select>
+        </div>
+        <div>
+          <label>الشعبة:</label>
+          <select id="pClass" onchange="buildParentStudents(); parentRefresh()"></select>
+        </div>
+        <div>
+          <label>الطالبة:</label>
+          <select id="pStudent" onchange="parentRefresh()"></select>
+        </div>
+      </div>
+      <div id="parentPhoneWrap" class="small hidden" style="margin-bottom:6px">📱 لم يتم حفظ رقم هاتفك بعد، سيطلب عند إرسال سبب الغياب.</div>
+      <table>
+        <thead>
+          <tr><th>اسم الطالبة</th><th>الحالة</th><th>المرفقات</th><th>الإجراء</th></tr>
+        </thead>
+        <tbody id="parentList"></tbody>
+      </table>
+    </section>
+
+  </div>
+
+  <footer>
+    <div class="footer-row">
+      <span class="badge-flat">© مدرسة جوهرة شناص للتعليم الأساسي — 2025</span>
+      <span class="badge-flat">إصدار النظام: 3.0</span>
+    </div>
+  </footer>
+
+  <div id="snackbar">✅ تم التنفيذ بنجاح</div>
+
+  <div class="modal" id="infoModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3>ℹ️ حول النظام</h3>
+        <img class="modal-logo" id="infoModalLogo" src="" alt="شعار الوزارة">
+      </div>
+      <div class="small" style="text-align:justify;line-height:1.9">
+        <b>للإدارة:</b> رؤية جميع الصفوف والشعب، عرض أرشيف الأعذار والمرفقات، الطباعة والتصدير.<br/>
+        <b>للمعلمة:</b> إدارة جميع الصفوف، إضافة/تعديل أسماء، تعيين الحضور/الغياب/التأخر، طباعة و PDF و Excel.<br/>
+        <b>لوليّ الأمر:</b> اختيار الصف والشعبة واسم الطالبة، وإذا كانت الحالة <b>🔴 غائبة</b> سيظهر نموذج لإدخال <b>سبب الغياب</b> ورفع <b>صورة العذر</b>، ثم يُنشأ تنبيه واتساب تلقائي.<br/>
+        <u>ملاحظات:</u> الأعذار تُحفظ بالأرشيف بتاريخ ووقت الإرسال، والسبب لا يمكن تعديله بعد الحفظ. يتم تنبيه المعلمة بعلامة <span class="bell">🔔</span> ذهبية عند ورود عذر جديد.
+      </div>
+      <div class="actions">
+        <button class="btn-primary" onclick="closeInfo()">تم</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="reasonModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3>📝 إدخال سبب الغياب</h3>
+        <img class="modal-logo" id="reasonModalLogo" src="" alt="شعار الوزارة">
+      </div>
+      <div id="rmStudent" class="small"></div>
+      <textarea id="reasonText" placeholder="اكتب سبب الغياب..." style="width:100%;height:110px;border-radius:10px"></textarea>
+      <div class="small" style="margin:6px 0">يمكنك رفع صورة (اختياري: تقرير طبي/عذر)</div>
+      <input type="file" id="reasonImage" accept="image/*" style="width:100%">
+      <div id="phoneFieldWrap" class="hidden">
+        <div class="small" style="margin-top:8px">📱 أدخل رقم واتساب لاستلام التنبيه:</div>
+        <input type="tel" id="parentPhoneInput" placeholder="مثال: 9689XXXXXXX" style="width:100%">
+      </div>
+      <div class="actions">
+        <button class="btn-ok" onclick="submitReason()">حفظ السبب وإرسال التنبيه</button>
+        <button class="btn-gray" onclick="closeReasonModal()">إلغاء</button>
+      </div>
+      <div class="small" style="margin-top:6px;color:var(--muted)">سيتم إنشاء رسالة واتساب تلقائياً.</div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+<script>
+  const MOE_LOGO_URL = "https://d.top4top.io/p_3589gelyk2.png";
+  const SCHOOL_LOGO_URL = "https://c.top4top.io/p_35890ssj01.png";
+
+  const ADMIN_PASS="111000", TEACHER_PASS="001100", PARENT_PASS="112233";
+
+  const $ = id => document.getElementById(id);
+  function nowDateStr(){ return new Date().toLocaleDateString("ar-EG"); }
+  function nowTimeStr(){ return new Date().toLocaleTimeString("ar-EG"); }
+
+  function beep(duration=220, freq=880, volume=0.05){
+    try{
+      const ctx = new (window.AudioContext||window.webkitAudioContext)();
+      const o = ctx.createOscillator(); const g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type="sine"; o.frequency.value=freq; g.gain.value=volume;
+      o.start();
+      setTimeout(()=>{ g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.18); o.stop(ctx.currentTime + 0.2); }, duration);
+    }catch(e){}
+  }
+
+  function updateDateTime(){
+    const now = new Date();
+    const days = ["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
+    $("dateTime").textContent = `${days[now.getDay()]} - ${now.toLocaleDateString("ar-EG")} - ${now.toLocaleTimeString("ar-EG")}`;
+  }
+  setInterval(updateDateTime, 1000); updateDateTime();
+
+  function currentRole(){ return localStorage.getItem("role") || ""; }
+  function logout(){ localStorage.removeItem("role"); location.reload(); }
+
+  function login(role){
+    const pass = role==="admin" ? $("adminPass").value.trim()
+              : role==="teacher" ? $("teacherPass").value.trim()
+              : $("parentPass").value.trim();
+    const ok = (role==="admin"&&pass===ADMIN_PASS)||(role==="teacher"&&pass===TEACHER_PASS)||(role==="parent"&&pass===PARENT_PASS);
+    if(!ok){ alert("كلمة المرور غير صحيحة"); return; }
+    localStorage.setItem("role", role);
+    routeByRole();
+  }
+
+  function routeByRole(){
+    const role=currentRole();
+    toggle($("logoutBtn"), !!role);
+    ["moeLogoHeader","moeLogo","moeLogoPrint","infoModalLogo","reasonModalLogo"].forEach(id=>{ $(id).src = MOE_LOGO_URL; });
+    ["schoolLogoHeader","schoolLogo","schoolLogoPrint"].forEach(id=>{ $(id).src = SCHOOL_LOGO_URL; });
+
+    showOnly(role ? null : "loginView");
+    toggle($("commonControls"), role==="admin"||role==="teacher");
+    toggle($("tableSection"),   role==="admin"||role==="teacher");
+    toggle($("parentView"),     role==="parent");
+
+    if(role==="parent"){ buildParentClasses(); parentRefresh(); }
+    else if(role==="teacher"||role==="admin"){ updateClasses(); }
+  }
+  function showOnly(viewId){["loginView","commonControls","tableSection","parentView"].forEach(id=>{const el=$(id); if(el) el.classList.add("hidden");}); if(viewId){$(viewId).classList.remove("hidden");}}
+  function toggle(el, show){ if(!el) return; el.classList.toggle("hidden", !show); }
+
+  function toggleDarkMode(){
+    const d = document.documentElement.classList.toggle("dark");
+    localStorage.setItem("darkMode", d ? "1":"0");
+  }
+  (function(){ if(localStorage.getItem("darkMode")==="1") document.documentElement.classList.add("dark"); })();
+
+  function saveTeacher(){ localStorage.setItem("teacher_name", $("teacherName").value.trim()); }
+
+  function keyFor(g,c){ return `students_${g}_${c}` } function keyForUI(){ return keyFor($("grade").value, $("class").value); }
+
+  function saveData(){
+    const role=currentRole(); if(!(role==="admin"||role==="teacher")) return;
+    const g=$("grade").value,c=$("class").value; if(!g||!c) return;
+    const rows=[...document.querySelectorAll("#studentsList tr")];
+    const payload = rows.map(r=>({name:r.querySelector(".name").textContent,status:r.querySelector(".status").textContent,parentPhone:r.dataset.parentPhone||"",hasNew:r.dataset.hasNew==="true",absences:JSON.parse(r.dataset.absences||"[]")}));
+    localStorage.setItem(keyForUI(), JSON.stringify(payload)); updateStatsUI();
+  }
+
+  function loadStudents(){
+    const role=currentRole(); if(!(role==="admin"||role==="teacher")) return;
+    const g=$("grade").value,c=$("class").value; $("studentsList").innerHTML=""; $("classTitle").textContent=""; if(!g||!c) return;
+    $("classTitle").textContent=`كشف الصف ${g} - الشعبة ${c}`;
+    const saved=JSON.parse(localStorage.getItem(keyForUI())||"[]"); let hasAnyNew=false;
+    saved.forEach(s=>{ const tr=createRow(s.name,s.status,s.parentPhone,s.absences||[],s.hasNew||false); if(s.hasNew) hasAnyNew=true; $("studentsList").appendChild(tr); });
+    renumber(); updateStatsUI(); if(hasAnyNew){ beep(220,880,0.08); }
+  }
+
+  function updateClasses(){
+    const g=$("grade").value, cls=$("class");
+    $("studentsList").innerHTML=""; $("classTitle").textContent=""; cls.innerHTML=""; if(!g) return;
+    const counts={5:7,6:8,7:7,8:7};
+    for(let i=1;i<=counts[g];i++){ const op=document.createElement("option"); op.value=i; op.textContent="الشعبة "+i; cls.appendChild(op); }
+    loadStudents();
+  }
+
+  function createRow(name,statusText,parentPhone="",absences=[],hasNew=false){
+    const role=currentRole(); const tr=document.createElement("tr");
+    tr.dataset.parentPhone=parentPhone||""; tr.dataset.absences=JSON.stringify(absences||[]); tr.dataset.hasNew=hasNew?"true":"false";
+
+    const tdNo=document.createElement("td"); tdNo.className="no"; tdNo.textContent="";
+    const tdName=document.createElement("td"); tdName.className="name-cell";
+    const spanName=document.createElement("span"); spanName.className="name"; spanName.textContent=name;
+    const bell=document.createElement("span"); bell.className="bell"; bell.textContent=(hasNew?"🔔":"");
+    tdName.appendChild(bell); tdName.appendChild(spanName);
+
+    const tdStatus=document.createElement("td"); tdStatus.className="status"; tdStatus.textContent=statusText||"✅ حاضرة";
+    const tdAttach=document.createElement("td"); updateAttachmentCell(tdAttach,absences);
+    const tdSign=document.createElement("td"); tdSign.textContent="";
+    const tdBtns=document.createElement("td");
+
+    if(role==="admin"||role==="teacher"){
+      const bLate=btn("btn-warn","🟠 متأخرة",()=>{tdStatus.textContent="🟠 متأخرة"; saveData();});
+      const bAbs =btn("btn-danger","🔴 غائبة", ()=>{tdStatus.textContent="🔴 غائبة"; saveData();});
+      const bEdit=btn("btn-purple","✏️ تعديل", ()=>{
+        const editing=tdName.querySelector("input"); if(editing) return;
+        const current=spanName.textContent; const input=document.createElement("input");
+        input.type="text"; input.className="name-input"; input.value=current;
+        tdName.innerHTML=""; const bell2=document.createElement("span"); bell2.className="bell"; bell2.textContent=tr.dataset.hasNew==="true"?"🔔":""; tdName.appendChild(bell2); tdName.appendChild(input);
+        input.focus(); input.select();
+        function commit(save=true){ tdName.innerHTML=""; const b3=document.createElement("span"); b3.className="bell"; b3.textContent=tr.dataset.hasNew==="true"?"🔔":""; tdName.appendChild(b3); if(save){ spanName.textContent=input.value.trim()||current; } tdName.appendChild(spanName); saveData(); }
+        input.addEventListener("keydown",(e)=>{ if(e.key==="Enter") commit(true); if(e.key==="Escape") commit(false); });
+        input.addEventListener("blur",()=>commit(true));
+      });
+      const bDel =btn("btn-danger","🗑️ حذف", ()=>{ if(confirm("هل أنتِ متأكدة من حذف هذه الطالبة؟")){ tr.remove(); renumber(); saveData(); }});
+      const bView=btn("btn-blue","👁️ عرض الأعذار", ()=>{
+        tr.dataset.hasNew="false"; tdName.querySelector(".bell").textContent=""; saveData();
+        const list=JSON.parse(tr.dataset.absences||"[]"); if(!list.length){ alert("لا توجد أعذار محفوظة بعد."); return; }
+        const lines=list.map((a,i)=>`${i+1}- ${a.date} ${a.time}\nالسبب: ${a.text}${a.image?' (مع مرفق)':''}`).join("\n\n");
+        alert(lines);
+      });
+      tdBtns.append(bLate,bAbs,bEdit,bDel,bView);
+    } else tdBtns.textContent="—";
+
+    tr.append(tdNo,tdName,tdStatus,tdAttach,tdSign,tdBtns); return tr;
+  }
+  function btn(cls,txt,fn){ const b=document.createElement("button"); b.className=cls; b.textContent=txt; b.onclick=fn; return b; }
+
+  function updateAttachmentCell(tdAttach, absences){
+    tdAttach.innerHTML=""; if(!absences||!absences.length){ tdAttach.innerHTML='<span class="small">لا يوجد</span>'; return; }
+    const count=absences.length; const latest=absences[absences.length-1]; const wrap=document.createElement("div"); const info=document.createElement("div"); info.className="small"; info.textContent=`الأعذار: ${count}`; wrap.appendChild(info);
+    if(latest.image){ const a=document.createElement("a"); a.className="attach-link"; a.textContent="📎 آخر مرفق"; a.href=latest.image; a.target="_blank"; wrap.appendChild(a); }
+    tdAttach.appendChild(wrap);
+  }
+
+  function addStudent(){
+    const role=currentRole(); if(!(role==="admin"||role==="teacher")) return;
+    const name=$("studentName").value.trim(); if(!name) return alert("يرجى إدخال اسم الطالبة");
+    const tr=createRow(name); $("studentsList").appendChild(tr); $("studentName").value=""; renumber(); saveData();
+  }
+  function renumber(){ document.querySelectorAll("#studentsList .no").forEach((c,i)=>c.textContent=(i+1).toString()); }
+
+  function computeStats(){
+    const rows=[...document.querySelectorAll("#studentsList tr")]; const total=rows.length||1; let present=0,absent=0,late=0;
+    rows.forEach(r=>{ const st=r.querySelector(".status").textContent.trim(); if(st.startsWith("🔴")) absent++; else if(st.startsWith("🟠")) late++; else present++; });
+    return {present:+(present*100/total).toFixed(1), absent:+(absent*100/total).toFixed(1), late:+(late*100/total).toFixed(1)};
+  }
+  function updateStatsUI(){ const s=computeStats(); $("statsBox").textContent=`الحضور: ${s.present}% | الغياب: ${s.absent}% | التأخر: ${s.late}%`; }
+  function markAllPresent(){ const role=currentRole(); if(!(role==="admin"||role==="teacher")) return; document.querySelectorAll("#studentsList .status").forEach(s=>s.textContent="✅ حاضرة"); saveData(); alert("✅ تم تحديد جميع الطالبات كحاضرات"); }
+
+  function printList(){
+    const role=currentRole(); if(!(role==="admin"||role==="teacher")) return;
+    const g=$("grade").value,c=$("class").value; if(!g||!c) return alert("يرجى اختيار الصف والشعبة أولاً");
+    const now=new Date(); const day=["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"][now.getDay()];
+    $("printInfo").textContent=`اليوم: ${day} - التاريخ: ${now.toLocaleDateString("ar-EG")} - الصف ${g} / الشعبة ${c}`;
+    $("teacherPrint").textContent=`اسم المعلمة: ${$("teacherName").value || "________"}`; window.print();
+  }
+
+  function exportToExcel(){
+    const role=currentRole(); if(!(role==="admin"||role==="teacher")) return;
+    const g=$("grade").value,c=$("class").value; if(!g||!c) return alert("يرجى اختيار الصف والشعبة أولاً");
+    const saved=JSON.parse(localStorage.getItem(keyFor(g,c))||"[]"); if(saved.length===0) return alert("لا توجد بيانات لتصديرها");
+    const ws_data=[["رقم","اسم الطالبة","الحالة","عدد الأعذار"]]; saved.forEach((s,i)=>ws_data.push([i+1,s.name,s.status||"✅ حاضرة",(s.absences||[]).length]));
+    const ws=XLSX.utils.aoa_to_sheet(ws_data); const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "كشف الحضور");
+    const dateStr=new Date().toLocaleDateString("ar-EG").replace(/\//g,"-"); XLSX.writeFile(wb, `كشف_الصف${g}_الشعبة${c}_${dateStr}.xlsx`);
+  }
+
+  function showSnack(msg="✅ تم التنفيذ بنجاح"){ const x=$("snackbar"); x.textContent=msg; x.className="show"; setTimeout(()=>x.className=x.className.replace("show",""),3000); }
+
+  async function sendPDF(){
+    const role=currentRole(); if(!(role==="admin"||role==="teacher")) return;
+    const g=$("grade").value,c=$("class").value; if(!g||!c) return alert("يرجى اختيار الصف والشعبة أولاً");
+    const rows=[...document.querySelectorAll("#studentsList tr")]; if(rows.length===0) return alert("لا توجد بيانات");
+    const { jsPDF }=window.jspdf; const doc=new jsPDF({orientation:"portrait",unit:"pt",format:"a4"}); const pageW=doc.internal.pageSize.getWidth(); let y=28;
+    try{ if(MOE_LOGO_URL) doc.addImage(MOE_LOGO_URL,"PNG",pageW-100,y,80,80);}catch(e){}; try{ if(SCHOOL_LOGO_URL) doc.addImage(SCHOOL_LOGO_URL,"PNG",20,y,80,80);}catch(e){}; y+=10;
+    doc.setFont("Helvetica","bold"); doc.setFontSize(15); doc.text("وزارة التربية والتعليم",pageW/2,y+20,{align:"center"});
+    doc.setFontSize(16); doc.text("مدرسة جوهرة شناص للتعليم الأساسي",pageW/2,y+40,{align:"center"});
+    doc.setFontSize(12); doc.text("سلطنة عُمان",pageW/2,y+58,{align:"center"}); y+=80;
+    const now=new Date(); const day=["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"][now.getDay()];
+    doc.setFontSize(11); doc.text(`اليوم: ${day}   التاريخ: ${now.toLocaleDateString("ar-EG")}   الصف ${g} / الشعبة ${c}`,pageW/2,y,{align:"center"});
+    const tName=$("teacherName").value||"________"; doc.text(`اسم المعلمة: ${tName}`,pageW/2,y+18,{align:"center"}); y+=36;
+    const body=rows.map((r,i)=>[(i+1).toString(), r.querySelector(".name").textContent, r.querySelector(".status").textContent||"✅ حاضرة", JSON.parse(r.dataset.absences||"[]").length.toString(), ""]);
+    doc.autoTable({ head:[["رقم","اسم الطالبة","الحالة","عدد الأعذار","التوقيع"]], body, theme:"grid", styles:{font:"Helvetica",fontSize:11,halign:"center"}, headStyles:{fillColor:[109,76,182], textColor:[255,255,255]}, startY:y });
+    const s=computeStats(); let endY=doc.lastAutoTable.finalY+16; doc.setFontSize(12); doc.setFont("Helvetica","bold");
+    doc.text(`الحضور: ${s.present}%   |   الغياب: ${s.absent}%   |   التأخر: ${s.late}%`,pageW/2,endY,{align:"center"}); endY+=20;
+    doc.setFont("Helvetica","normal"); doc.setFontSize(10.5); doc.text(`تم استخراج هذا الكشف إلكترونيًا عبر نظام الحضور والغياب — مدرسة جوهرة شناص للتعليم الأساسي — 2025`,pageW/2,endY,{align:"center"});
+    const fileName=`تقرير_حضور_الصف${g}_الشعبة${c}_${now.toLocaleDateString("ar-EG").replace(/\//g,"-")}.pdf`; doc.save(fileName); showSnack("✅ تم إنشاء ملف PDF");
+  }
+
+  function buildParentClasses(){
+    const classSel=$("pClass"); classSel.innerHTML=""; const g=$("pGrade").value; if(!g) return;
+    const counts={5:7,6:8,7:7,8:7}; for(let i=1;i<=counts[g];i++){ const op=document.createElement("option"); op.value=i; op.textContent="الشعبة "+i; classSel.appendChild(op); }
+    buildParentStudents();
+  }
+  function buildParentStudents(){
+    const g=$("pGrade").value, c=$("pClass").value, sSel=$("pStudent"); sSel.innerHTML=""; if(!g||!c) return;
+    const list=JSON.parse(localStorage.getItem(keyFor(g,c))||"[]"); if(!list.length){ const op=document.createElement("option"); op.value=""; op.textContent="لا يوجد طالبات مسجلات"; sSel.appendChild(op); return; }
+    sSel.appendChild(new Option("-- اختر الطالبة --","")); list.forEach(x=>sSel.appendChild(new Option(x.name,x.name)));
+  }
+  function parentRefresh(){
+    const g=$("pGrade").value, c=$("pClass").value, name=$("pStudent").value, tb=$("parentList"); tb.innerHTML=""; if(!g||!c) return;
+    const saved=JSON.parse(localStorage.getItem(keyFor(g,c))||"[]"); const arr=name? saved.filter(x=>x.name===name):saved;
+    arr.forEach(s=>{
+      const tr=document.createElement("tr"); const td1=el("td",s.name); const td2=el("td",s.status||"✅ حاضرة");
+      const td3=document.createElement("td"); const abs=s.absences||[];
+      if(abs.length){ const latest=abs[abs.length-1]; const wrap=el("div",""); wrap.className="small"; wrap.textContent=`الأعذار: ${abs.length}`; if(latest.image){ const a=document.createElement("a"); a.className="attach-link"; a.textContent="📎 آخر مرفق"; a.href=latest.image; a.target="_blank"; wrap.appendChild(document.createTextNode(" ")); wrap.appendChild(a);} td3.appendChild(wrap);}
+      else td3.innerHTML='<span class="small">لا يوجد</span>';
+      const td4=document.createElement("td");
+      if((s.status||"").startsWith("🔴")){ const btn=document.createElement("button"); btn.className="btn-ok"; btn.textContent="✍️ إدخال سبب الغياب"; btn.onclick=()=>openReasonModal(g,c,s.name); td4.appendChild(btn); }
+      else td4.innerHTML='<span class="small">—</span>';
+      tr.append(td1,td2,td3,td4); tb.appendChild(tr);
+    });
+    if(g&&c&&name){ const data=findStudentRecord(g,c,name); const hasPhone=data&&data.parentPhone; toggle($("parentPhoneWrap"), !hasPhone); } else toggle($("parentPhoneWrap"), true);
+  }
+  function el(tag,txt){ const t=document.createElement(tag); t.textContent=txt; return t; }
+  function findStudentRecord(g,c,name){ const key=keyFor(g,c); const list=JSON.parse(localStorage.getItem(key)||"[]"); return list.find(x=>x.name===name); }
+  function updateStudentRecord(g,c,updater){ const key=keyFor(g,c); const list=JSON.parse(localStorage.getItem(key)||"[]"); const out=updater(list); localStorage.setItem(key, JSON.stringify(out)); }
+
+  let modalCtx=null;
+  function openReasonModal(grade,classNum,studentName){
+    modalCtx={grade,classNum,studentName};
+    $("rmStudent").textContent=`الطالبة: ${studentName} — الصف ${grade} / الشعبة ${classNum}`;
+    $("reasonText").value=""; $("reasonImage").value="";
+    const rec=findStudentRecord(grade,classNum,studentName); const needPhone=!(rec&&rec.parentPhone); toggle($("phoneFieldWrap"), needPhone); if(needPhone) $("parentPhoneInput").value="";
+    $("reasonModal").classList.add("show");
+  }
+  function closeReasonModal(){ $("reasonModal").classList.remove("show"); }
+
+  function submitReason(){
+    if(!modalCtx) return; const {grade,classNum,studentName}=modalCtx;
+    const text=($("reasonText").value||"").trim(); if(!text){ alert("يرجى كتابة سبب الغياب."); return; }
+    const file=$("reasonImage").files && $("reasonImage").files[0];
+    let phone=""; const rec=findStudentRecord(grade,classNum,studentName);
+    if(rec&&rec.parentPhone){ phone=rec.parentPhone; } else { phone=($("parentPhoneInput").value||"").trim(); if(!phone){ alert("يرجى إدخال رقم واتساب."); return; } }
+    if(file){ const reader=new FileReader(); reader.onload=()=>{ saveReasonRecord(grade,classNum,studentName,text, reader.result, phone); }; reader.readAsDataURL(file); }
+    else{ saveReasonRecord(grade,classNum,studentName,text,"",phone); }
+  }
+
+  function saveReasonRecord(grade,classNum,studentName,text,imageDataUrl,phone){
+    const date=nowDateStr(), time=nowTimeStr();
+    updateStudentRecord(grade,classNum,(list)=> list.map(s=>{ if(s.name===studentName){ s.status=s.status||"🔴 غائبة"; s.absences=s.absences||[]; s.absences.push({date,time,text,image:imageDataUrl}); s.parentPhone=s.parentPhone||phone; s.hasNew=true; } return s; }));
+    if(currentRole()==="parent"){ parentRefresh(); beep(180,700,0.07); }
+    if(currentRole()==="admin"||currentRole()==="teacher"){ loadStudents(); }
+    closeReasonModal(); showSnack("✅ تم حفظ السبب وإضافة المرفق");
+    const msg=`السلام عليكم.\nابنتكم: ${studentName}\nالصف: ${grade} / الشعبة: ${classNum}\nتاريخ الغياب: ${date} ${time}\nالسبب: ${text}`;
+    const wa=`https://wa.me/${encodeURIComponent(phone)}?text=${encodeURIComponent(msg)}`; window.open(wa,"_blank");
+  }
+
+  function openInfo(){ $("infoModal").classList.add("show"); }
+  function closeInfo(){ $("infoModal").classList.remove("show"); }
+
+  (function init(){
+    $("teacherName").value=localStorage.getItem("teacher_name")||"";
+    ["moeLogoHeader","moeLogo","moeLogoPrint","infoModalLogo","reasonModalLogo"].forEach(id=>{ $(id).src = MOE_LOGO_URL; });
+    ["schoolLogoHeader","schoolLogo","schoolLogoPrint"].forEach(id=>{ $(id).src = SCHOOL_LOGO_URL; });
+    if(currentRole()){ routeByRole(); } else { showOnly("loginView"); }
+  })();
+</script>
+</body>
+</html>
